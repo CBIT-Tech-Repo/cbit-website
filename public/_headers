@@ -1,0 +1,9 @@
+# Cloudflare Pages response headers: https://developers.cloudflare.com/pages/configuration/headers/
+# Until launch day nothing is indexed: on production (the soft launch), staging and previews alike.
+# At launch, delete the X-Robots-Tag line and set PUBLIC_NOINDEX=false in Cloudflare's production variables.
+/*
+  X-Robots-Tag: noindex, nofollow
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

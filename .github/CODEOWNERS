@@ -1,0 +1,18 @@
+# Who must approve a change before it reaches main. The last matching pattern wins.
+# Replace each placeholder with the person's GitHub username before turning on
+# "Require review from Code Owners" in the ruleset (docs/SETUP.md, step 2).
+# Owners need write access to the repository. One owner's approval is enough.
+
+# Code, design, settings and workflows: technical owners
+*                                   @GEORGI_GITHUB @ZENG_GITHUB
+
+# The rules themselves: technical owner and XM
+/.github/                           @GEORGI_GITHUB @XM_GITHUB
+/guards/                            @GEORGI_GITHUB @XM_GITHUB
+/.pages.yml                         @GEORGI_GITHUB @ZENG_GITHUB
+
+# News and events (pilot): owner Evelyn, deputy XM
+/src/content/news/                  @EVELYN_GITHUB @XM_GITHUB
+/src/content/events/                @EVELYN_GITHUB @XM_GITHUB
+/src/content/pages/news-events.md   @EVELYN_GITHUB @XM_GITHUB
+/public/media/news/                 @EVELYN_GITHUB @XM_GITHUB

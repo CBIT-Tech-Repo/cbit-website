@@ -1,0 +1,187 @@
+# Pages CMS configuration: https://pagescms.org/docs/configuration/
+# Pilot: News and events only. Each section joins this file as it migrates.
+# Editors see forms built from the fields below; they never see the HTML templates.
+# Key names follow the Pages CMS documentation; confirm them in the pilot (Pages CMS changes often).
+
+media:
+  input: public/media
+  output: /media
+  extensions: [jpg, jpeg, png, webp]
+
+settings:
+  content:
+    merge: true          # keep any keys a form does not show, rather than deleting them on save
+
+components:
+  status:
+    label: Status
+    type: select
+    required: true
+    default: published
+    description: "Published shows it on the site once approved. Hidden keeps it off the site, but it can still be read on GitHub, so enter only cleared content."
+    options:
+      values: [published, hidden]
+
+content:
+  - name: news-events-group
+    label: "News and events · owner Evelyn Xie"
+    type: group
+    items:
+      - name: news
+        label: News
+        type: collection
+        path: src/content/news
+        format: yaml-frontmatter
+        filename: "{year}-{month}-{day}-{primary}.md"
+        view:
+          fields: [title, date, status]
+          primary: title
+          sort: [date, title]
+          default:
+            sort: date
+            order: desc
+        fields:
+          - name: title
+            label: Headline
+            type: string
+            required: true
+          - name: date
+            label: Date
+            type: date
+            required: true
+            description: "Orders the news, newest first."
+          - name: date_label
+            label: Date as shown
+            type: string
+            description: "Optional. Use for a period, such as 2024 or April to June 2026. Leave empty to show the date above."
+          - name: status
+            component: status
+          - name: body
+            label: Text
+            type: rich-text
+            required: true
+          - name: photos
+            label: Photos (up to three)
+            type: object
+            list:
+              max: 3
+            fields:
+              - name: src
+                label: Photo (under 4.5 MB; upload one at a time)
+                type: image
+                required: true
+              - name: alt
+                label: Description for screen readers
+                type: string
+                required: true
+              - name: caption
+                label: Caption
+                type: string
+          - name: link
+            label: Read more link
+            type: object
+            fields:
+              - name: text
+                label: Link text
+                type: string
+              - name: url
+                label: Link address
+                type: string
+                description: "An https:// address, or a page on this site starting with /. Never paste an Outlook Safelinks address."
+          - name: archived
+            label: Archived post from the old website
+            type: boolean
+            default: false
+
+      - name: events
+        label: Events
+        type: collection
+        path: src/content/events
+        format: yaml-frontmatter
+        filename: "{year}-{month}-{day}-{primary}.md"
+        view:
+          fields: [title, start, status]
+          primary: title
+          sort: [start, title]
+        fields:
+          - name: title
+            label: Event name
+            type: string
+            required: true
+          - name: start
+            label: Start date
+            type: date
+            required: true
+            description: "Past events drop off the site automatically."
+          - name: end
+            label: End date
+            type: date
+          - name: when
+            label: Date as shown
+            type: string
+            description: "Optional, for example November 2026. Leave empty to show the start date."
+          - name: place
+            label: Place
+            type: string
+          - name: status
+            component: status
+          - name: body
+            label: Summary
+            type: rich-text
+            required: true
+          - name: link
+            label: Event link
+            type: object
+            fields:
+              - name: text
+                label: Link text
+                type: string
+              - name: url
+                label: Link address
+                type: string
+
+      - name: news-events-page
+        label: Page words
+        type: file
+        path: src/content/pages/news-events.md
+        format: yaml-frontmatter
+        fields:
+          - name: title
+            label: Page title
+            type: string
+            required: true
+            readonly: true
+          - name: description
+            label: Search engine description (one sentence)
+            type: text
+            required: true
+          - name: lead
+            label: Lead paragraph
+            type: text
+            required: true
+          - name: invite
+            label: Keynote invitation card
+            type: object
+            fields:
+              - { name: label, label: Small label, type: string, required: true }
+              - { name: heading, label: Heading, type: string, required: true }
+              - { name: text, label: Text, type: text, required: true }
+              - name: links
+                label: Links
+                type: object
+                list: true
+                fields:
+                  - { name: text, label: Link text, type: string, required: true }
+                  - { name: url, label: Link address, type: string, required: true }
+          - name: cta
+            label: Closing band
+            type: object
+            fields:
+              - { name: heading, label: Heading, type: string, required: true }
+              - { name: text, label: Text, type: text, required: true }
+              - name: button
+                label: Button
+                type: object
+                fields:
+                  - { name: text, label: Button text, type: string, required: true }
+                  - { name: url, label: Button link, type: string, required: true }

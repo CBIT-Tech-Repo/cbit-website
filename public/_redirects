@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects: https://developers.cloudflare.com/pages/configuration/redirects/
+# One line per moved address:  /old-path/  /new-path/  301
+# Old cbitvb.uk addresses redirect from cbitvb.uk's own Cloudflare zone at switch-over, not here.

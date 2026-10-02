@@ -1,0 +1,40 @@
+# When an editor saves in Pages CMS on an edit/<section> branch, open a pull request into main
+# (once; later saves update the same pull request). The section owner reviews the preview and approves.
+# Replaces the plan's "Send for approval" button and its separate GitHub App: the required "build"
+# check comes from the push run on the same commit, so the built-in token is enough.
+# Needs: Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
+name: Open pull request for CMS edits
+
+on:
+  push:
+    branches: ['edit/**']
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open a pull request into main if none is open
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          open=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq 'length')
+          if [ "$open" != "0" ]; then
+            echo "A pull request from $BRANCH is already open; this save updates it."
+            exit 0
+          fi
+          section="${BRANCH#edit/}"
+          gh pr create --head "$BRANCH" --base main \
+            --title "Content: ${section} (from Pages CMS)" \
+            --body "Edits saved in Pages CMS on \`${BRANCH}\`.
+
+          Before approving, the section owner:
+          1. checks that every new item is marked cleared in the OneDrive clearance tracker;
+          2. opens the Cloudflare preview linked below and reads the change;
+          3. approves. Merge with a merge commit, not squash, so the edit branch stays in step with main."

@@ -1,0 +1,31 @@
+# The required check: builds the site and runs the guards on every push and pull request.
+# No path filters: a required check that a filter skips stays "pending" and blocks the merge.
+# Pages CMS saves are pushes, so they run this too; the pull request then reuses the result for the same commit.
+name: Checks
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main, staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build

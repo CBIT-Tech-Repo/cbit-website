@@ -1,0 +1,157 @@
+---
+// News and events: the pilot section for Pages CMS. Markup follows the approved v4 mockup
+// (2026.09.30.site.news.events.html); the words come from src/content/, which editors change in Pages CMS.
+import Base from '../../layouts/Base.astro';
+import { getCollection, getEntry, render } from 'astro:content';
+
+const page = await getEntry('pages', 'news-events');
+if (!page) throw new Error('src/content/pages/news-events.md is missing');
+const p = page.data;
+
+const isPublished = ({ data }: { data: { status: string } }) => data.status === 'published';
+const today = new Date();
+today.setUTCHours(0, 0, 0, 0);
+
+// Upcoming events only: past events drop off at the next build (a daily rebuild keeps this current).
+const eventEntries = (await getCollection('events', isPublished))
+  .filter((e) => (e.data.end ?? e.data.start) >= today)
+  .sort((a, b) => a.data.start.valueOf() - b.data.start.valueOf());
+const events = await Promise.all(eventEntries.map(async (e) => ({ e, Content: (await render(e)).Content })));
+
+const allNews = (await getCollection('news', isPublished)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const news = await Promise.all(
+  allNews.filter((n) => !n.data.archived).map(async (n) => ({ n, Content: (await render(n)).Content })),
+);
+const archived = allNews.filter((n) => n.data.archived);
+
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const long = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const showComingUp = events.length > 0 || Boolean(p.invite);
+---
+<Base title={p.title} description={p.description} section="news-events" crumbs={[{ label: p.title }]}>
+  <section class="hero hero--text" aria-labelledby="page-title">
+    <div class="wrap hero__inner">
+      <div class="hero__body">
+        <h1 id="page-title">{p.title}</h1>
+        <p class="lead">{p.lead}</p>
+        <nav aria-label="On this page">
+          <ul class="jump-links">
+            {showComingUp && <li><a href="#coming-up">Coming up</a></li>}
+            {news.length > 0 && <li><a href="#news">News</a></li>}
+            {archived.length > 0 && <li><a href="#archive">Archived posts</a></li>}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  {showComingUp && (
+    <section class="section" id="coming-up" aria-labelledby="h-coming-up">
+      <div class="wrap">
+        <h2 id="h-coming-up">Coming up</h2>
+        <div class="events">
+          {events.map(({ e, Content }) => (
+            <article class="event news-item" id={`event-${e.id}`}>
+              <p class="event__label">{e.data.when ?? long(e.data.start)}{e.data.place && ` · ${e.data.place}`}</p>
+              <h3 class="event__title">{e.data.title}</h3>
+              <div class="event__text"><Content /></div>
+              {e.data.link && <p class="event__text"><a class="more-link" href={e.data.link.url}>{e.data.link.text}</a></p>}
+            </article>
+          ))}
+          {p.invite && (
+            <div class="event-card">
+              <p class="event-card__label">{p.invite.label}</p>
+              <h3 class="event-card__title">{p.invite.heading}</h3>
+              <p>{p.invite.text}</p>
+              {p.invite.links.length > 0 && (
+                <p class="event-card__links">
+                  {p.invite.links.map((l) => (
+                    <Fragment><a class="more-link" href={l.url}>{l.text}</a>{' '}</Fragment>
+                  ))}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {news.length > 0 && (
+    <section class="section section--tint" id="news" aria-labelledby="h-news">
+      <div class="wrap">
+        <h2 id="h-news">News</h2>
+        <ul class="news-list">
+          {news.map(({ n, Content }) => (
+            <li>
+              <article class="news-entry" id={`news-${n.id}`}>
+                <p class="news-entry__date">{n.data.date_label ?? <time datetime={iso(n.data.date)}>{long(n.data.date)}</time>}</p>
+                <h3 class="news-entry__title">{n.data.title}</h3>
+                <Content />
+                {n.data.photos.length > 0 && (
+                  <ul class="news-entry__photos">
+                    {n.data.photos.map((ph) => (
+                      <li>
+                        <figure class="news-entry__photo">
+                          <img src={ph.src} alt={ph.alt} loading="lazy" decoding="async" />
+                          {ph.caption && <figcaption class="news-entry__photo-caption">{ph.caption}</figcaption>}
+                        </figure>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {n.data.link && <p class="news-entry__more"><a class="more-link" href={n.data.link.url}>{n.data.link.text}</a></p>}
+              </article>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {archived.length > 0 && (
+    <section class="section" id="archive" aria-labelledby="h-archive">
+      <div class="wrap">
+        <h2 id="h-archive">Archived posts</h2>
+        <p class="section__intro">Posts from CBIT’s earlier website.</p>
+        <ul class="news">
+          {archived.map((n) => (
+            <li>
+              <a class="card card--news" href={n.data.link?.url}>
+                <div class="card__body">
+                  <p class="card__eyebrow"><time datetime={iso(n.data.date)}>{long(n.data.date)}</time> <span class="tag">Archived post</span></p>
+                  <h3 class="card__title">{n.data.title}</h3>
+                  <p class="card__meta">News archive</p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {p.cta && (
+    <section class="section section--tyrian" aria-labelledby="h-news-touch">
+      <div class="wrap cta-band">
+        <div class="cta-band__text">
+          <h2 id="h-news-touch">{p.cta.heading}</h2>
+          <p>{p.cta.text}</p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--primary" href={p.cta.button.url}>{p.cta.button.text}</a>
+        </div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style is:global>
+  /* The news photo row, from the v4 mockup (T-088), where it was page-scoped. */
+  .news-entry__photos { list-style: none; margin: 16px 0 20px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .news-entry__photos > li { margin: 0; }
+  .news-entry__photo { margin: 0; }
+  .news-entry__photo img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius); }
+  .news-entry__photo-caption { margin: 6px 0 0; color: var(--pewter); font-size: 13px; line-height: 18px; }
+  @media (max-width: 767px) { .news-entry__photos { grid-template-columns: minmax(0, 1fr); } }
+</style>

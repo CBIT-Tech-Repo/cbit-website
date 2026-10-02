@@ -1,0 +1,54 @@
+---
+// The shared page frame: the NTU strip, the CBIT bar and its menus, breadcrumbs and the footer,
+// taken from the approved v4 design. The bar and footer markup lives in src/partials/ (code only).
+import headerHtml from '../partials/header.html?raw';
+import footerHtml from '../partials/footer.html?raw';
+
+interface Crumb { label: string; href?: string }
+interface Props { title: string; description: string; section?: string; crumbs?: Crumb[] }
+
+const { title, description, section = 'page', crumbs = [] } = Astro.props;
+const path = Astro.url.pathname;
+const noindex = import.meta.env.PUBLIC_NOINDEX !== 'false';
+const fullTitle = path === '/' ? 'CBIT Venture Builder' : `${title} | CBIT Venture Builder`;
+// Mark the current top-level bar item, as the mockups did.
+const header = headerHtml.replace(
+  `class="vb-bar__link" href="${path}"`,
+  `class="vb-bar__link" href="${path}" aria-current="page"`,
+);
+---
+<!doctype html>
+<html lang="en-GB" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{fullTitle}</title>
+<meta name="description" content={description}>
+{noindex && <meta name="robots" content="noindex, nofollow">}
+<link rel="canonical" href={new URL(path, Astro.site)}>
+<link rel="icon" type="image/png" href="/assets/img/logos/cbit-favicon.png">
+<link rel="preload" href="/assets/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.v4.css">
+<script is:inline>document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
+<script is:inline src="/assets/js/site.v4.js" defer></script>
+<slot name="head" />
+</head>
+<body class={`layout-site page-${section}`}>
+<a class="skip-link" href="#main">Skip to main content</a>
+<Fragment set:html={header} />
+{crumbs.length > 0 && (
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <div class="wrap">
+      <ol class="breadcrumb__list">
+        <li><a href="/">CBIT Venture Builder</a></li>
+        {crumbs.map((c) => <li>{c.href ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}</li>)}
+      </ol>
+    </div>
+  </nav>
+)}
+<main id="main" class="main" tabindex="-1">
+<slot />
+</main>
+<Fragment set:html={footerHtml} />
+</body>
+</html>
