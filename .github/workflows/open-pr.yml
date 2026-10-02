@@ -19,11 +19,19 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Open a pull request into main if none is open
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ github.ref_name }}
         run: |
+          # Nothing to propose: the branch was just created from main, or main already has every change.
+          ahead=$(git rev-list --count "origin/main..HEAD")
+          if [ "$ahead" = "0" ]; then
+            echo "$BRANCH has no changes that main lacks; no pull request needed."
+            exit 0
+          fi
           open=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq 'length')
           if [ "$open" != "0" ]; then
             echo "A pull request from $BRANCH is already open; this save updates it."
