@@ -2,12 +2,14 @@
 
 These steps are done once, by an owner of the CBIT-Tech-Repo organisation and of CBIT's Cloudflare account. They set up the News and events pilot. Screen labels follow GitHub, Pages CMS and Cloudflare as of October 2026 and may move.
 
+This guide describes how things are set up. Progress, decisions and the dated action log live in the team's internal migration runbook, not in this repository.
+
 ## 1. Create the repository
 
 1. In GitHub, open the **CBIT-Tech-Repo** organisation, then create a repository named `cbit-website`.
    - **Visibility.** XM's decision of 28 September (D1) is public. Branch rules and required approvals are free on a public repository. A private repository needs the GitHub Team plan for them.
    - Leave "Add a README" unticked, because this repository brings its own.
-2. Push this folder from a computer that has it:
+2. Push this folder from a computer that has it. A computer without it can first clone the repository bundle the team keeps internally, into a folder outside OneDrive. Then push:
 
    ```bash
    git remote add origin https://github.com/CBIT-Tech-Repo/cbit-website.git
@@ -64,7 +66,9 @@ These steps are done once, by an owner of the CBIT-Tech-Repo organisation and of
 
 ## 4. Cloudflare Pages, connected to GitHub
 
-1. In Cloudflare, go to **Workers & Pages**, then **Create**, then **Pages**, then **Connect to Git**.
+1. In Cloudflare, go to **Workers & Pages**, then **Create**. Switch to the **Pages** tab, then choose **Connect to Git**.
+   - Cloudflare's create screen opens on Workers by default. Its "Import a repository" option builds a Worker, which needs a Wrangler configuration file this repository does not have.
+   - Use Pages: it reads `public/_headers` and `public/_redirects` as they are, and gives each branch its own preview address.
 2. Authorise Cloudflare's GitHub app for `CBIT-Tech-Repo/cbit-website` only, and choose the repository.
 3. Name the project `cbit-website` and set up the build:
    - production branch `main`;
@@ -74,10 +78,16 @@ These steps are done once, by an owner of the CBIT-Tech-Repo organisation and of
    No environment variables are needed, because `.nvmrc` sets the Node version.
 4. Under **Settings**, **Builds**, then **Branch control**, set preview branches to Custom, and include `edit/*`, `dev/*` and `staging`.
 5. Under **Notifications**, add a "Pages: Deployment failed" alert to the shared web inbox. Until that inbox exists, send it to Georgi and Zeng.
-6. **Domains.** These need cbitx.com to be active on Cloudflare first, which is the nameserver change.
-   - **www.cbitx.com.** Go to **Custom domains**, add `www.cbitx.com`, and it serves `main`.
+6. **Domains.** cbitx.com was added to CBIT's Cloudflare account on 2 October 2026, and its registration stays at GoDaddy. The domains below work only once the zone shows **Active**, which happens after the nameservers are changed at GoDaddy.
+   - **www.cbitx.com.** First, in the cbitx.com zone's DNS records, delete the `www` record imported from GoDaddy. It points to the old parking page and blocks the custom domain. Then, in this project, go to **Custom domains** and add `www.cbitx.com`, which serves `main`.
    - **Bare cbitx.com to www.** In the cbitx.com zone, add a proxied `A` record for `@` pointing to `192.0.2.1`. Then add a Redirect Rule from `cbitx.com/*` to `https://www.cbitx.com/${1}`, with status 301.
-   - **staging.cbitx.com.** It serves the design-review copy for now. It moves to this project's `staging` branch when releases start. At that point, add a proxied `CNAME` from `staging` to `staging.cbit-website.pages.dev`, then a Cloudflare Access application on `staging.cbitx.com`. Add the domain first and Access second.
+   - **staging.cbitx.com.** For now it belongs to a separate Cloudflare Worker that holds the design-review copy of the mockups. That copy stays outside this repository and is locked with Cloudflare Access. When releases start, it moves to this project's `staging` branch:
+     1. Remove the custom domain from the design-review Worker.
+     2. Deploy that Worker's placeholder, so nothing is exposed while the domain moves.
+     3. Add `staging.cbitx.com` here.
+     4. Set its proxied `CNAME` to `staging.cbit-website.pages.dev`.
+     5. Cover it with a Cloudflare Access application.
+     Add the domain first and Access second.
 
 ## 5. The pilot test
 
