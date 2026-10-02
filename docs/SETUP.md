@@ -7,7 +7,8 @@ This guide describes how things are set up. Progress, decisions and the dated ac
 ## 1. Create the repository
 
 1. In GitHub, open the **CBIT-Tech-Repo** organisation, then create a repository named `cbit-website`.
-   - **Visibility.** XM's decision of 28 September (D1) is public. Branch rules and required approvals are free on a public repository. A private repository needs the GitHub Team plan for them.
+   - **Visibility: private.** The repository was created private on 2 October 2026. XM's earlier decision (D1, 28 September) was public, and XM confirms the change.
+   - **Plan.** While CBIT-Tech-Repo is on GitHub Free, a private repository has no rulesets, no required checks and no compulsory code-owner approval. Step 2 explains what that means and how to fix it.
    - Leave "Add a README" unticked, because this repository brings its own.
 2. Push this folder from a computer that has it. A computer without it can first clone the repository bundle the team keeps internally, into a folder outside OneDrive. Then push:
 
@@ -34,13 +35,27 @@ This guide describes how things are set up. Progress, decisions and the dated ac
 **Repository settings, Actions:**
 
 - Under **General**, tick "Allow GitHub Actions to create and approve pull requests", which the pull-request workflow needs.
-- For a public repository, require approval for workflows from outside contributors.
+- **Actions minutes.** A private repository on GitHub Free has 2,000 minutes a month, and GitHub Team has 3,000. Each check run takes about a minute.
 
 **Repository settings, Collaborators and teams.** Give write access to the owners and deputies who approve. Each of them needs a GitHub account with two-factor authentication. Editors invited only through Pages CMS need no GitHub account.
 
 **Edit `.github/CODEOWNERS`.** Replace each placeholder, such as `@EVELYN_GITHUB`, with the person's GitHub username, and commit it on a branch through a pull request.
 
-**Repository settings, Rules, Rulesets.** Create a new branch ruleset named `main`:
+**First, the plan.** Rulesets on a private repository need GitHub Team. On GitHub Free, the Rulesets page will not let you enforce them.
+
+- **Without Team, nothing stops a change reaching the live site unapproved.**
+  - Anyone with write access can push straight to `main`.
+  - Pages CMS can save straight to `main` if an editor switches to that branch.
+  - The `build` check still runs on every push, but it cannot block a merge.
+  - The only remaining safety net is that a failed build never deploys on Cloudflare.
+- **Recommended: move CBIT-Tech-Repo to GitHub Team before inviting any editor in Pages CMS.**
+  - It costs about US$4 per organisation member a month.
+  - Editors invited by email in Pages CMS are not members, so they need no seat.
+  - Upgrade under Organisation settings, then Billing and plans.
+  - Alternatively, ask whether verified academic staff can get GitHub Team free through GitHub Education.
+- **Until then,** run the pilot as a convention: owners merge only approved pull requests, and editors work only on their `edit/*` branch.
+
+**Repository settings, Rules, Rulesets.** Once on GitHub Team, create a new branch ruleset named `main`:
 
 - **Enforcement:** Active. **Bypass list:** empty. **Target:** the default branch. Add `staging` later, when it exists.
 - Restrict deletions, and block force pushes.
