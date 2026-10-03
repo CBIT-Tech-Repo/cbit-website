@@ -93,16 +93,12 @@ This guide describes how things are set up. Progress, decisions and the dated ac
    No environment variables are needed, because `.nvmrc` sets the Node version.
 4. Under **Settings**, **Builds**, then **Branch control**, set preview branches to Custom, and include `edit/*`, `dev/*` and `staging`.
 5. Under **Notifications**, add a "Pages: Deployment failed" alert to the shared web inbox. Until that inbox exists, send it to Georgi and Zeng.
-6. **Domains.** cbitx.com was added to CBIT's Cloudflare account on 2 October 2026, and its registration stays at GoDaddy. The domains below work only once the zone shows **Active**, which happens after the nameservers are changed at GoDaddy.
-   - **www.cbitx.com.** First, in the cbitx.com zone's DNS records, delete the `www` record imported from GoDaddy. It points to the old parking page and blocks the custom domain. Then, in this project, go to **Custom domains** and add `www.cbitx.com`, which serves `main`.
-   - **Bare cbitx.com to www.** In the cbitx.com zone, add a proxied `A` record for `@` pointing to `192.0.2.1`. Then add a Redirect Rule from `cbitx.com/*` to `https://www.cbitx.com/${1}`, with status 301.
-   - **staging.cbitx.com.** For now it belongs to a separate Cloudflare Worker that holds the design-review copy of the mockups. That copy stays outside this repository and is locked with Cloudflare Access. When releases start, it moves to this project's `staging` branch:
-     1. Remove the custom domain from the design-review Worker.
-     2. Deploy that Worker's placeholder, so nothing is exposed while the domain moves.
-     3. Add `staging.cbitx.com` here.
-     4. Set its proxied `CNAME` to `staging.cbit-website.pages.dev`.
-     5. Cover it with a Cloudflare Access application.
-     Add the domain first and Access second.
+6. **Domains.** cbitx.com's DNS stays at GoDaddy, and its nameservers never change (XM, 2 October 2026). The domain also serves other live sites through its own subdomains, so every change is one record at GoDaddy, approved by XM at the time. Never edit a record this project did not add.
+   - **Order for every domain:** first add the custom domain in this Pages project, then add or change the CNAME at GoDaddy. A CNAME made first can give error 522.
+   - **www.cbitx.com, at launch.** In this project, go to **Custom domains** and add `www.cbitx.com`. Then, at GoDaddy, change the existing `www` CNAME, which points to the parking page, to `cbit-website.pages.dev`.
+   - **Bare cbitx.com, at launch.** It cannot be attached to Pages without a Cloudflare zone. Use GoDaddy's domain forwarding to send it to `https://www.cbitx.com` with a 301. Test that `https://cbitx.com` forwards without a certificate warning before relying on it.
+   - **Release previews.** A branch such as `staging` previews at `staging.cbit-website.pages.dev`. Lock the previews under **Settings**, then **General**, then **Access policy**. An Access lock needs a Cloudflare zone, so it cannot cover a branch on a cbitx.com subdomain.
+   - **staging.cbitx.com** belongs to a separate Pages project, `cbitx-staging`, which holds the design copy of the mockups. That copy stays outside this repository.
 
 ## 5. The pilot test
 
