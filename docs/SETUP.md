@@ -98,7 +98,7 @@ This guide describes how things are set up. Progress, decisions and the dated ac
    - **www.cbitx.com, at launch.** In this project, go to **Custom domains** and add `www.cbitx.com`. Then, at GoDaddy, change the existing `www` CNAME, which points to the parking page, to `cbit-website.pages.dev`.
    - **Bare cbitx.com, at launch.** It cannot be attached to Pages without a Cloudflare zone. Use GoDaddy's domain forwarding to send it to `https://www.cbitx.com` with a 301. Test that `https://cbitx.com` forwards without a certificate warning before relying on it.
    - **Release previews.** A branch such as `staging` previews at `staging.cbit-website.pages.dev`. Lock the previews under **Settings**, then **General**, then **Access policy**. An Access lock needs a Cloudflare zone, so it cannot cover a branch on a cbitx.com subdomain.
-   - **staging.cbitx.com** belongs to a separate Pages project, `cbitx-staging`, which holds the design copy of the mockups. That copy stays outside this repository.
+   - **staging.cbitx.com** is served by GitHub Pages from this repository's `staging` branch (workflow `.github/workflows/deploy-staging.yml`; no Cloudflare is involved). The custom domain is set in the repository's Pages settings, and GoDaddy holds one CNAME: `staging` to `cbit-tech-repo.github.io`. Every page carries noindex. The design mockups stay outside this repository.
 
 ## 5. The pilot test
 
