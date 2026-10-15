@@ -2,7 +2,8 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://www.cbitx.com',
+  // The address canonical links use. Staging builds set PUBLIC_SITE_URL; production keeps the www default.
+  site: process.env.PUBLIC_SITE_URL || 'https://www.cbitx.com',
   trailingSlash: 'always',
   build: { format: 'directory' },
 });
