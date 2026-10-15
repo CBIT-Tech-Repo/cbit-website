@@ -5,9 +5,10 @@
 # PUBLIC_NOINDEX stays true here (the layout's default) until launch day.
 name: Deploy staging
 
+# Manual only from 15 October 2026: this repository's one GitHub Pages site now serves production
+# (deploy-production.yml, from main). staging.cbitx.com is served by CBIT-Tech-Repo/cbit-design-review.
+# Running this by hand would replace the live site with the staging branch, so do it only on purpose.
 on:
-  push:
-    branches: [staging]
   workflow_dispatch:
 
 permissions:
@@ -16,7 +17,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-staging
+  group: pages
   cancel-in-progress: true
 
 jobs:

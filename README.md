@@ -2,7 +2,7 @@
 
 The CBIT Venture Builder website, built with [Astro](https://astro.build), edited in [Pages CMS](https://pagescms.org) and hosted on Cloudflare Pages.
 
-**Status:** pilot. Only News and events has moved over from the approved v4 design. The other sections follow one at a time, and their links show "page not found" until they do.
+**Status:** ready to launch. News and events is built in Astro and edited in Pages CMS. Every other page is the approved v4 design, imported as static pages by `tools/import-v4.mjs` until its section moves to Pages CMS. See `docs/GO-LIVE.md`.
 
 ## How a change goes live
 
@@ -36,5 +36,7 @@ Keep your working copy outside OneDrive, for example in `C:\dev\cbit-website`. C
 | `public/assets/` | The v4 design: CSS, script, font and logos |
 | `public/media/` | Images uploaded in Pages CMS |
 | `guards/check-dist.mjs` | Checks run on the built site |
+| `tools/import-v4.mjs` | Imports the cleared v4 pages into `public/` |
+| `tools/postbuild.mjs` | Robots setting, robots.txt and sitemap.xml |
 | `.pages.yml` | The Pages CMS forms |
 | `docs/SETUP.md` | How GitHub, Pages CMS and Cloudflare are set up |
