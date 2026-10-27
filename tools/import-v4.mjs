@@ -47,8 +47,16 @@ const MAP = {
   'about.ai': '/about/ai-at-cbit/', 'platforms': '/about/platforms/', 'contact': '/contact/', 'sources': '/sources/',
   'accessibility': '/accessibility/', 'privacy': '/privacy/',
 };
-/** Pages Astro builds itself (editable in Pages CMS): the import never writes these. */
-const ASTRO_OWNED = new Set(['news.events']);
+/** Pages Astro builds itself: the import never writes these. News and events is edited in Pages CMS;
+ *  the accessibility statement and privacy notice are the live versions, not the mockups' drafts. */
+const ASTRO_OWNED = new Set(['news.events', 'accessibility', 'privacy']);
+
+/** Search and sharing descriptions replaced on the live site, using only wording the pages already publish:
+ *  the home page's mockup description describes the design, and the stories page counts stories that are held back. */
+const DESCRIPTIONS = {
+  home: 'Making people and ventures AI-native. CBIT, part of Nottingham Business School at Nottingham Trent University, helps founders, business leaders, research leaders and governments build ventures, develop people, and turn research into ventures and impact.',
+  'impact.stories': 'Impact stories: what founders, companies, research leaders and governments did with CBIT, grouped by who they are for.',
+};
 
 // 1. Copy the sources and take unready stories and placeholders off their pages.
 const work = mkdtempSync(join(tmpdir(), 'cbit-import-'));
@@ -130,6 +138,7 @@ function clean(key, page) {
   // Inline scripts: block comments carry internal working notes. (Line comments are kept: a "//" can sit in a URL string.)
   h = h.replace(/<script>([\s\S]*?)<\/script>/gi, (_, js) => `<script>${js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\n\s*\n+/g, '\n')}</script>`);
   h = h.replace(/\s*<meta name="robots"[^>]*>/gi, ''); // tools/postbuild.mjs sets robots for every page
+  if (DESCRIPTIONS[key]) h = h.replace(/<meta name="description" content="[^"]*">/i, `<meta name="description" content="${DESCRIPTIONS[key]}">`);
   // Links to stories or groups that were taken off: drop the list item or paragraph that holds only that link.
   // Both forms count: another page ("2026.09.30.site.x.html#frag") and this page ("#frag").
   const dangles = (a) => {

@@ -1,0 +1,56 @@
+---
+// Accessibility statement for the live site. Structure follows the UK public sector model statement
+// (Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018).
+// Owner: Georgi Iliev; NTU's accessibility lead to review. Update the dates when it is reviewed.
+import Base from '../layouts/Base.astro';
+const prepared = 'October 2026';
+---
+<Base title="Accessibility statement" description="How accessible the CBIT Venture Builder website is, what has not been tested yet, and how to tell us about a problem." section="accessibility" crumbs={[{ label: 'Accessibility statement' }]}>
+  <section class="hero hero--text" aria-labelledby="page-title">
+    <div class="wrap hero__inner">
+      <div class="hero__body">
+        <p class="eyebrow">About this website</p>
+        <h1 id="page-title">Accessibility statement</h1>
+        <p class="lead">This statement applies to the CBIT Venture Builder website, www.cbitx.com, run by CBIT at Nottingham Business School, Nottingham Trent University.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Accessibility statement">
+    <div class="wrap">
+      <div class="notice">
+        <h2>Using this website</h2>
+        <p>We want as many people as possible to be able to use this website. You should be able to:</p>
+        <ul class="ticks">
+          <li>skip straight to the main content: it is the first link on every page;</li>
+          <li>use the menus, buttons and links with a keyboard, with a visible outline showing where you are, and close an open menu with Escape;</li>
+          <li>read every page and open the menu with JavaScript turned off;</li>
+          <li>pause the animation of the CBIT cycle wheel, which starts paused if your device is set to reduce motion;</li>
+          <li>use the website on a phone without scrolling sideways;</li>
+          <li>find a text alternative for every image that carries information.</li>
+        </ul>
+
+        <h2>How accessible this website is</h2>
+        <p>The website is built to the Web Content Accessibility Guidelines (WCAG) version 2.2, level AA. It has not yet had an independent accessibility audit, and it has not yet been tested with screen readers, so there may be problems we have not found.</p>
+
+        <h2>Compliance status</h2>
+        <p>This website is partially compliant with WCAG 2.2 level AA, because it has not yet been fully tested. We will update this statement with the results of the audit, and fix what it finds.</p>
+
+        <h2>Content that is not covered</h2>
+        <p>Some links lead to other websites, such as Nottingham Trent University’s and social media. Their accessibility is outside this website’s control.</p>
+
+        <h2>Tell us about a problem</h2>
+        <p>If something on this website does not work for you, or you need information in a different format, email <a href="mailto:cbit@ntu.ac.uk?subject=Accessibility">cbit@ntu.ac.uk</a>. Tell us the page and what went wrong. We aim to reply within 10 working days.</p>
+
+        <h2>Enforcement procedure</h2>
+        <p>The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018. If you are not happy with how we respond to your complaint, contact the <a href="https://www.equalityadvisoryservice.com/">Equality Advisory and Support Service (EASS)</a>.</p>
+
+        <h2>Nottingham Trent University</h2>
+        <p>For Nottingham Trent University’s own website policies, see <a href="https://www.ntu.ac.uk/policies/web-policies">About our website</a> on the NTU website.</p>
+
+        <h2>Preparation of this statement</h2>
+        <p>This statement was prepared in {prepared}. The website was checked by the people who built it, against WCAG 2.2 level AA. It will be reviewed after the independent audit, and at least once a year.</p>
+      </div>
+    </div>
+  </section>
+</Base>
