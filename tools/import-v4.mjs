@@ -41,6 +41,7 @@ const MAP = {
   'path.research.start': '/help-me-choose/research/', 'path.research.q2': '/help-me-choose/research/q2/',
   'path.research.o.not.sure': '/help-me-choose/research/not-sure/', 'path.research.o.executive.phd': '/help-me-choose/research/executive-phd/',
   'path.partner.start': '/help-me-choose/government/', 'path.partner.o.not.sure': '/help-me-choose/government/not-sure/',
+  'case.studies': '/impact/case-studies/',
   'impact.ventures': '/impact/ventures/', 'impact.research.projects': '/impact/research-projects/', 'project.beeftwin': '/impact/research-projects/beeftwin/',
   'impact.publications': '/impact/publications/', 'impact.stories': '/impact/stories/', 'keynotes': '/keynotes/',
   'news.events': '/news-and-events/', 'about.how.we.work': '/about/how-we-work/', 'about.people': '/about/team-and-partners/',
@@ -52,11 +53,13 @@ const MAP = {
 const ASTRO_OWNED = new Set(['news.events', 'accessibility', 'privacy']);
 
 /** Search and sharing descriptions replaced on the live site, using only wording the pages already publish:
- *  the home page's mockup description describes the design, and the stories page counts stories that are held back. */
+ *  the home page's mockup description describes the design. */
 const DESCRIPTIONS = {
   home: 'Making people and ventures AI-native. CBIT, part of Nottingham Business School at Nottingham Trent University, helps founders, business leaders, research leaders and governments build ventures, develop people, and turn research into ventures and impact.',
-  'impact.stories': 'Impact stories: what founders, companies, research leaders and governments did with CBIT, grouped by who they are for.',
 };
+/** The bar and footer of the Astro-built pages (src/partials/) are copied from this imported page on every import,
+ *  so a menu change in the v4 design reaches every page. */
+const PARTIALS_FROM = 'news.events';
 
 // 1. Copy the sources and take unready stories and placeholders off their pages.
 const work = mkdtempSync(join(tmpdir(), 'cbit-import-'));
@@ -178,6 +181,19 @@ for (const [key, page] of Object.entries(html)) {
   mkdirSync(dirname(join(PUBLIC, rel)), { recursive: true });
   writeFileSync(join(PUBLIC, rel), h, 'utf8');
   written.push(rel);
+}
+
+// 4b. The bar and footer for the Astro-built pages, from the same cleaned design (links already clean).
+{
+  const h = clean(PARTIALS_FROM, html[PARTIALS_FROM]);
+  const start = h.indexOf('<div class="ntu-bar"');
+  const headerEnd = h.indexOf('</header>', start) + '</header>'.length;
+  const footer = (/<footer class="site-footer">[\s\S]*?<\/footer>/.exec(h) || [])[0];
+  if (start < 0 || headerEnd < start || !footer) throw new Error('import-v4: could not find the bar or footer to copy into src/partials/');
+  const header = h.slice(start, headerEnd).replace(/\s+aria-current="page"/g, '');
+  for (const part of [header, footer]) for (const m of part.matchAll(/(?:src|href)="\/(assets\/[^"#?]+)"/g)) assets.add(m[1]);
+  writeFileSync(join(ROOT, 'src', 'partials', 'header.html'), header + '\n', 'utf8');
+  writeFileSync(join(ROOT, 'src', 'partials', 'footer.html'), footer + '\n', 'utf8');
 }
 
 // 5. Assets: only what the imported pages use, plus the shared CSS, script and font, without internal comments.
