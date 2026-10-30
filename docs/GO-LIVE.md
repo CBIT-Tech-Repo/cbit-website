@@ -64,6 +64,17 @@ Count the records before and after, and check the other subdomains still answer.
    - https://cbitx.com redirects to www.
 3. Optionally, submit `https://www.cbitx.com/sitemap.xml` in Google Search Console.
 
+## Visitor statistics and Google Search Console
+
+Both are off until their repository variable is set (**Settings**, then **Secrets and variables**, then **Actions**, then **Variables**). Then re-run **Deploy production**. Both values are public, because they appear in the page source, so they are variables, not secrets.
+
+| Variable | Where the value comes from | What it does |
+|---|---|---|
+| `PUBLIC_CF_ANALYTICS_TOKEN` | Cloudflare dashboard: **Analytics & Logs**, then **Web Analytics**, then **Add a site**, with hostname `www.cbitx.com`. From the snippet, copy only the 32-character `token` value. | Adds Cloudflare Web Analytics to every page (no cookies, so no consent banner), and adds a "Visitor statistics" section to the privacy page. The `privacy/notice-mismatch` guard fails the build if the two ever disagree. |
+| `PUBLIC_GOOGLE_SITE_VERIFICATION` | Google Search Console: **Add property**, then **URL prefix** `https://www.cbitx.com/`, then the **HTML tag** method. Copy only the `content="..."` value. | Adds Google's ownership tag to the home page, so Search Console can verify the site. Visitors are not affected. |
+
+To switch either one off, delete the variable and re-run **Deploy production**. The `privacy/outside-script` guard fails the build if any other outside script appears on a page.
+
 ## 6. Rolling back
 
 - **Content or code:** revert the merge on `main`, and the deploy runs again with the previous version. You can also re-run **Deploy production** from an earlier run.

@@ -28,6 +28,9 @@ jobs:
     env:
       PUBLIC_SITE_URL: https://www.cbitx.com
       PUBLIC_NOINDEX: ${{ vars.PUBLIC_NOINDEX || 'true' }}
+      # Optional, public values (they appear in the page source): set them under Variables, not Secrets.
+      PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
+      PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

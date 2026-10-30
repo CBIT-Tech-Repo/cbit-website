@@ -2,10 +2,16 @@
 // Privacy notice for the live site. It describes only what this website does; Nottingham Trent University's
 // own privacy notices cover personal data CBIT handles. Owner: Georgi Iliev, with NTU's data protection team.
 // If analytics, cookies or any third-party service are added, this page must change first.
+// Visitor statistics: the wording below follows PUBLIC_CF_ANALYTICS_TOKEN, the same variable that makes
+// tools/postbuild.mjs add Cloudflare Web Analytics, so the notice and the site cannot disagree.
 import Base from '../layouts/Base.astro';
 const prepared = 'October 2026';
+const stats = Boolean((process.env.PUBLIC_CF_ANALYTICS_TOKEN || '').trim());
+const description = stats
+  ? 'What the CBIT Venture Builder website does and does not do with your information: no cookies, no tracking, and visitor statistics without cookies.'
+  : 'What the CBIT Venture Builder website does and does not do with your information: no cookies, no analytics, no tracking.';
 ---
-<Base title="Cookies and privacy" description="What the CBIT Venture Builder website does and does not do with your information: no cookies, no analytics, no tracking." section="privacy" crumbs={[{ label: 'Cookies and privacy' }]}>
+<Base title="Cookies and privacy" description={description} section="privacy" crumbs={[{ label: 'Cookies and privacy' }]}>
   <section class="hero hero--text" aria-labelledby="page-title">
     <div class="wrap hero__inner">
       <div class="hero__body">
@@ -26,9 +32,17 @@ const prepared = 'October 2026';
         <ul class="ticks">
           <li>It sets no cookies.</li>
           <li>It stores nothing in your browser.</li>
-          <li>It loads no analytics, advertising or tracking scripts.</li>
+          {stats
+            ? <li>It loads no advertising or tracking scripts. Its only outside script counts visits, as described below.</li>
+            : <li>It loads no analytics, advertising or tracking scripts.</li>}
           <li>It loads its fonts and images from this website, not from other services.</li>
         </ul>
+
+        {stats && <>
+          <h2>Visitor statistics</h2>
+          <p>To see which pages people find useful, this website uses Cloudflare Web Analytics. It counts visits without cookies, without storing anything in your browser, and without following you to other websites or building a profile of you.</p>
+          <p>When a page loads, a small script from Cloudflare reports the page’s address, the page that linked to it, the type of browser and device, how quickly the page loaded, and the country the visit came from. We see only totals, never individual visitors. Cloudflare’s own privacy policy applies to how it handles this.</p>
+        </>}
 
         <h2>When you contact us or apply</h2>
         <ul class="ticks">
@@ -44,7 +58,7 @@ const prepared = 'October 2026';
         <p>For how Nottingham Trent University handles personal information, your rights, and how to contact its data protection officer, see NTU’s <a href="https://www.ntu.ac.uk/about-us/governance/information-governance">information governance pages</a>.</p>
 
         <h2>Changes to this notice</h2>
-        <p>This notice was last updated in {prepared}. If the website ever starts to use cookies or analytics, this notice will change before it does.</p>
+        <p>This notice was last updated in {prepared}. If the website ever starts to use cookies, or changes how it counts visits, this notice will change before it does.</p>
       </div>
     </div>
   </section>

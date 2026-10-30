@@ -2,6 +2,8 @@
 //   - one robots setting (noindex until launch day: PUBLIC_NOINDEX=false only then);
 //   - a canonical address, Open Graph and Twitter tags, so shared links and AI tools read the page correctly;
 //   - on the home page, a machine-readable description of CBIT (schema.org JSON-LD);
+//   - visitor statistics (Cloudflare Web Analytics, no cookies) only when PUBLIC_CF_ANALYTICS_TOKEN is set,
+//     and Google Search Console's ownership tag on the home page only when PUBLIC_GOOGLE_SITE_VERIFICATION is set;
 // and writes robots.txt, sitemap.xml, llms.txt (a guide for AI tools) and llms-full.txt (every page as text).
 // Everything is derived from the built pages, so it can only contain what the pages already publish.
 // GitHub Pages cannot send response headers, so meta tags and robots.txt do this work.
@@ -12,6 +14,11 @@ import { fileURLToPath } from 'node:url';
 const DIST = fileURLToPath(new URL('../dist/', import.meta.url));
 const SITE = (process.env.PUBLIC_SITE_URL || 'https://www.cbitx.com').replace(/\/$/, '');
 const NOINDEX = process.env.PUBLIC_NOINDEX !== 'false';
+// Both are public values (they appear in the page source), kept as repository variables, not secrets.
+const CF_TOKEN = (process.env.PUBLIC_CF_ANALYTICS_TOKEN || '').trim();
+const GSC_TOKEN = (process.env.PUBLIC_GOOGLE_SITE_VERIFICATION || '').trim();
+if (CF_TOKEN && !/^[0-9a-f]{32}$/.test(CF_TOKEN)) throw new Error('PUBLIC_CF_ANALYTICS_TOKEN must be the 32-character token from the Cloudflare snippet, not the whole snippet.');
+if (GSC_TOKEN && !/^[A-Za-z0-9_-]{20,100}$/.test(GSC_TOKEN)) throw new Error('PUBLIC_GOOGLE_SITE_VERIFICATION must be only the content="..." value from Google\'s meta tag.');
 const SITE_NAME = 'CBIT Venture Builder';
 const SHARE_IMAGE = '/assets/img/logos/cbit-blend.png';
 
@@ -81,7 +88,13 @@ for (const file of pages) {
   ].filter(Boolean).join('\n');
   h = h.replace(/<\/head>/i, `${tags}\n</head>`);
 
+  // Visitor statistics: Cloudflare's beacon, deferred, on every page (the privacy page says so when it is on).
+  h = h.replace(/\s*<script[^>]*static\.cloudflareinsights\.com[^>]*><\/script>/gi, '');
+  if (CF_TOKEN) h = h.replace(/<\/body>/i, `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${CF_TOKEN}"}'></script>\n</body>`);
+
   if (path === '/') {
+    h = h.replace(/\s*<meta name="google-site-verification"[^>]*>/gi, '');
+    if (GSC_TOKEN) h = h.replace(/<\/head>/i, `<meta name="google-site-verification" content="${GSC_TOKEN}">\n</head>`);
     socials = [...new Set([...h.matchAll(/href="(https:\/\/(?:www\.)?(?:linkedin\.com|instagram\.com|youtube\.com|x\.com|medium\.com)\/[^"]+)"/g)].map((m) => m[1]))];
     const org = {
       '@context': 'https://schema.org',
@@ -153,4 +166,4 @@ const full = `# ${SITE_NAME}: full text of the website\n\nSource: ${SITE}/ . One
   + info.map((p) => `---\n\n# ${p.title}\n\nURL: ${p.url}\n${p.description ? `Summary: ${p.description}\n` : ''}\n${p.text}\n`).join('\n');
 writeFileSync(join(DIST, 'llms-full.txt'), full, 'utf8');
 
-console.log(`postbuild: robots ${NOINDEX ? 'noindex' : 'index'} and sharing tags on ${pages.length} page(s); sitemap, llms.txt and llms-full.txt with ${info.length} page(s); ${socials.length} social profile(s) in the CBIT description.`);
+console.log(`postbuild: robots ${NOINDEX ? 'noindex' : 'index'}, statistics ${CF_TOKEN ? 'on' : 'off'}, Search Console tag ${GSC_TOKEN ? 'on' : 'off'}, and sharing tags on ${pages.length} page(s); sitemap, llms.txt and llms-full.txt with ${info.length} page(s); ${socials.length} social profile(s) in the CBIT description.`);

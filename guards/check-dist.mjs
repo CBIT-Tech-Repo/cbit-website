@@ -33,6 +33,9 @@ const builtPaths = new Set(
 
 const errors = [];
 const warnings = [];
+// The only outside script the privacy page allows for: Cloudflare Web Analytics (tools/postbuild.mjs).
+const CF_BEACON = 'https://static.cloudflareinsights.com/beacon.min.js';
+let statsOn = false;
 const fail = (rule, file, detail = '') => errors.push(`${rule}  ${relative(DIST, file)}${detail ? '  ' + detail : ''}`);
 
 /** Visible text only: drop scripts, styles and tags. */
@@ -66,6 +69,12 @@ for (const file of pages) {
     if (/safelinks\.protection\.outlook\.com|[?&]data=/i.test(m[1])) fail('f/safelinks', file);
   }
 
+  // privacy: no outside scripts but the statistics beacon the privacy page describes
+  for (const m of html.matchAll(/<script\b[^>]*\bsrc="((?:https?:)?\/\/[^"]+)"/gi)) {
+    if (m[1] === CF_BEACON) statsOn = true;
+    else fail('privacy/outside-script', file, m[1].replace(/^(?:https?:)?\/\/([^/]+).*/, '$1'));
+  }
+
   // (g) only the three CBIT inboxes
   for (const m of html.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)) {
     const addr = m[0].toLowerCase();
@@ -93,7 +102,14 @@ for (const file of pages) {
   }
 }
 
-const uniqueWarnings = [...new Set(warnings.map((w) => w.split('  ').pop()))];
+// privacy: the notice says statistics are on exactly when the beacon is on the pages
+const privacyFile = join(DIST, 'privacy', 'index.html');
+if (existsSync(privacyFile)) {
+  const says = /Cloudflare Web Analytics/.test(visibleText(readFileSync(privacyFile, 'utf8')));
+  if (says !== statsOn) fail('privacy/notice-mismatch', privacyFile, statsOn ? 'statistics on, notice silent' : 'notice mentions statistics that are off');
+}
+
+const uniqueWarnings =[...new Set(warnings.map((w) => w.split('  ').pop()))];
 if (uniqueWarnings.length) {
   console.log(`guards: ${uniqueWarnings.length} internal link target(s) not built yet (pages still to migrate; fatal with --strict-links):`);
   for (const u of uniqueWarnings.sort()) console.log('  ' + u);
