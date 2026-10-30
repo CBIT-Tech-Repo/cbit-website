@@ -57,7 +57,8 @@ for (const file of pages) {
   if (dup.length) fail('structure/duplicate-id', file, [...new Set(dup)].join(','));
 
   // review flags never reach the output
-  if (/\sdata-(review|publish|status)=/.test(html)) fail('review/flag-in-output', file);
+  // (data-status is also a legitimate filter attribute, e.g. a project's "active"; only publication flags fail.)
+  if (/\sdata-(review|publish)=|\sdata-status="(needs-[a-z-]+|hold|placeholder|ready)"/.test(html)) fail('review/flag-in-output', file);
   if (/class="review-(bar|drawer)/.test(html)) fail('review/toolbar-in-output', file);
 
   // (f) Safelinks

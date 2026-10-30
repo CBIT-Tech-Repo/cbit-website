@@ -1,0 +1,51 @@
+---
+// Privacy notice for the live site. It describes only what this website does; Nottingham Trent University's
+// own privacy notices cover personal data CBIT handles. Owner: Georgi Iliev, with NTU's data protection team.
+// If analytics, cookies or any third-party service are added, this page must change first.
+import Base from '../layouts/Base.astro';
+const prepared = 'October 2026';
+---
+<Base title="Cookies and privacy" description="What the CBIT Venture Builder website does and does not do with your information: no cookies, no analytics, no tracking." section="privacy" crumbs={[{ label: 'Cookies and privacy' }]}>
+  <section class="hero hero--text" aria-labelledby="page-title">
+    <div class="wrap hero__inner">
+      <div class="hero__body">
+        <p class="eyebrow">About this website</p>
+        <h1 id="page-title">Cookies and privacy</h1>
+        <p class="lead">What this website does, and does not do, with your information.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Cookies and privacy">
+    <div class="wrap">
+      <div class="notice">
+        <h2>Who we are</h2>
+        <p>This website is run by CBIT (Centre for Business and Industry Transformation), part of Nottingham Business School, Nottingham Trent University. Nottingham Trent University is responsible for any personal information CBIT handles.</p>
+
+        <h2>What this website does not do</h2>
+        <ul class="ticks">
+          <li>It sets no cookies.</li>
+          <li>It stores nothing in your browser.</li>
+          <li>It loads no analytics, advertising or tracking scripts.</li>
+          <li>It loads its fonts and images from this website, not from other services.</li>
+        </ul>
+
+        <h2>When you contact us or apply</h2>
+        <ul class="ticks">
+          <li>Email links open your own email app. What you send goes to a Nottingham Trent University inbox: cbit@ntu.ac.uk, cbit.vb@ntu.ac.uk or cbit.edu@ntu.ac.uk.</li>
+          <li>The founder path ends in an application form on Microsoft Forms. What you enter there goes to that form, not to this website.</li>
+          <li>The Search NTU box sends what you type to Nottingham Trent University’s search service.</li>
+        </ul>
+
+        <h2>Other websites</h2>
+        <p>Links to Nottingham Trent University, LinkedIn, Instagram, YouTube, X and Medium take you to those websites. Their own privacy notices apply there.</p>
+
+        <h2>Your rights, and how Nottingham Trent University handles personal information</h2>
+        <p>For how Nottingham Trent University handles personal information, your rights, and how to contact its data protection officer, see NTU’s <a href="https://www.ntu.ac.uk/about-us/governance/information-governance">information governance pages</a>.</p>
+
+        <h2>Changes to this notice</h2>
+        <p>This notice was last updated in {prepared}. If the website ever starts to use cookies or analytics, this notice will change before it does.</p>
+      </div>
+    </div>
+  </section>
+</Base>

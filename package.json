@@ -5,9 +5,10 @@
   "description": "The CBIT Venture Builder website: Astro, edited in Pages CMS, hosted on Cloudflare Pages.",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node guards/check-dist.mjs",
+    "build": "astro build && node tools/postbuild.mjs && node guards/check-dist.mjs --strict-links",
     "preview": "astro preview",
-    "guards": "node guards/check-dist.mjs"
+    "guards": "node guards/check-dist.mjs",
+    "import-v4": "node tools/import-v4.mjs"
   },
   "engines": {
     "node": ">=22.12"

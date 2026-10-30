@@ -1,0 +1,54 @@
+# Publishes `main` to GitHub Pages: the live site, served at https://www.cbitx.com once launched
+# (custom domain www.cbitx.com in the repository's Pages settings, and a CNAME `www` at GoDaddy).
+# Same build and guards as the Checks workflow. GitHub Pages cannot send response headers, so
+# tools/postbuild.mjs writes the robots meta tag and robots.txt.
+# Launch day: set the repository variable PUBLIC_NOINDEX to false (Settings > Secrets and variables >
+# Actions > Variables), then re-run this workflow. Until then every page stays noindex.
+name: Deploy production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PUBLIC_SITE_URL: https://www.cbitx.com
+      PUBLIC_NOINDEX: ${{ vars.PUBLIC_NOINDEX || 'true' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: deploy
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
